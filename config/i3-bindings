@@ -1,0 +1,35 @@
+# =====================================================
+# i3 Clipboard History Manager - Конфигурация
+# =====================================================
+# Добавьте эти строки в ваш ~/.config/i3/config
+# =====================================================
+
+# Запуск демона clipman при старте i3
+exec --no-startup-id ~/.local/bin/clipman --daemon
+
+# Горячие клавиши для управления историей буфера обмена
+# Mod4 - это обычно клавиша Windows (Super)
+
+# Показать историю (Win + h)
+bindsym Mod4+h exec ~/.local/bin/clipman --show
+
+# Очистить всю историю (Win + Shift + h)
+bindsym Mod4+Shift+h exec ~/.local/bin/clipman --clear
+
+# Добавить в избранное (Win + Ctrl + h) - будет в следующей версии
+bindsym Mod4+Ctrl+h exec ~/.local/bin/clipman --favorite
+
+# Альтернативные привязки если Mod4 не работает:
+
+# Использовать Alt вместо Win
+# bindsym Mod1+h exec ~/.local/bin/clipman --show
+# bindsym Mod1+Shift+h exec ~/.local/bin/clipman --clear
+
+# Использовать другие клавиши
+# bindsym Mod4+y exec ~/.local/bin/clipman --show
+# bindsym Mod4+Shift+y exec ~/.local/bin/clipman --clear
+
+# =====================================================
+# После добавления настроек перезагрузите i3:
+# Нажмите Mod4+Shift+R (Win+Shift+R)
+# ====================================================
