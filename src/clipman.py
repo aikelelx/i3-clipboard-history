@@ -6,26 +6,24 @@ import sys
 from datetime import datetime
 
 HISTORY_FILE = os.path.expanduser("~/.clipboard_history.txt")
-MAX_HISTORY = 500
 
 def save_to_history(text):
     if not text:
         return
-    # Читаем существующую историю
     history = []
     if os.path.exists(HISTORY_FILE):
         with open(HISTORY_FILE, 'r') as f:
             history = f.readlines()
-    # Проверяем дубликат с последним
-    if history and history[-1].split(' | ')[1].strip() == text:
-        return
-    # Добавляем новую запись
+    if len(history) > 0:
+        last_line = history[-1].strip()
+        if '|' in last_line:
+            last_text = last_line.split('|')[1].strip()
+        else:
+            last_text = last_line
+        if last_text == text:
+            return
     with open(HISTORY_FILE, 'a') as f:
         f.write(f"{datetime.now()} | {text}\n")
-    # Ограничиваем размер истории
-    if len(history) >= MAX_HISTORY:
-        with open(HISTORY_FILE, 'w') as f:
-            f.writelines(history[-MAX_HISTORY:])
 
 def show_history():
     if not os.path.exists(HISTORY_FILE):
@@ -36,13 +34,9 @@ def show_history():
     if not lines:
         print("История пуста")
         return
-    print("\n=== История буфера обмена ===\n")
+    print("\n=== ИСТОРИЯ БУФЕРА ОБМЕНА ===\n")
     for i, line in enumerate(reversed(lines[-20:]), 1):
-        parts = line.split(' | ', 1)
-        if len(parts) == 2:
-            time_str = parts[0]
-            content = parts[1].strip()[:80]
-            print(f"{i}. [{time_str}] {content}")
+        print(f"{i}. {line.strip()}")
 
 def clear_history():
     if os.path.exists(HISTORY_FILE):
@@ -55,9 +49,11 @@ def get_clipboard():
     try:
         result = subprocess.run(['xclip', '-selection', 'clipboard', '-o'],
                                capture_output=True, text=True, timeout=1)
-        return result.stdout.strip() if result.returncode == 0 else None
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
     except:
-        return None
+        pass
+    return None
 
 def daemon_mode():
     print("Clipman демон запущен. Мониторинг буфера обмена...")
@@ -72,12 +68,11 @@ def daemon_mode():
 
 def main():
     if len(sys.argv) > 1:
-        arg = sys.argv[1]
-        if arg == '--daemon':
+        if sys.argv[1] == '--daemon':
             daemon_mode()
-        elif arg == '--show':
+        elif sys.argv[1] == '--show':
             show_history()
-        elif arg == '--clear':
+        elif sys.argv[1] == '--clear':
             clear_history()
         else:
             print("Использование: clipman [--daemon|--show|--clear]")
